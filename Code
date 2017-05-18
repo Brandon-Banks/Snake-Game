@@ -1,0 +1,178 @@
+// Brandon Banks
+// CS172
+// Snake Game Final Project
+
+#include <iostream>
+#include <iomanip>
+#include <windows.h>
+#include <string>
+#include <conio.h>
+
+using namespace std;
+
+
+const int width = 25; // size of the game field
+const int height = 20; // size of the game field
+
+int x; // setting up your ints
+int y; // setting up your ints
+int foodX; // x coordinate for "food"
+int foodY; // y coordinate for "food"
+double points; // setting up your double for points
+
+int endX[500], endY[500];
+int nEnd;
+
+bool giantLoser; // bool for losing the game
+
+enum eDirecton { S = 0, L, R, U, D }; // setting the directions
+eDirecton dir;
+
+
+void Draw()
+{
+	system("cls"); // makes screen clear before game goes up
+	for (int i = 0; i < width + 2; i++)
+		cout << "+"; // This is what the boarder will be made of
+	cout << endl;
+
+	for (int i = 0; i < height; i++)
+	{
+		for (int j = 0; j < width; j++)
+		{
+			if (j == 0)
+				cout << "+"; // This is what the boarder will be made of
+			if (i == y && j == x)
+				cout << "*"; // This will be what represents the snake
+			else if (i == foodY && j == foodX)
+				cout << "$"; // This is what the snake eats
+			else
+			{
+				bool print = false;
+				for (int k = 0; k < nEnd; k++)
+				{
+					if (endX[k] == j && endY[k] == i)
+					{
+						cout << "*"; // This will be what follows the snake (the money)
+						print = true;
+					}
+				}
+				if (!print) // An upperclassmen put this in my code to help me
+					cout << " ";
+			}
+
+
+			if (j == width - 1)
+				cout << "+"; // This is what the boarder will be made of
+		}
+		cout << endl;
+	}
+
+	for (int i = 0; i < width + 2; i++)
+		cout << "+"; // This is what the boarder will be made of
+	cout << endl;
+	cout << "Points:" << points << endl;
+}
+
+void Setup()
+{
+	giantLoser = false; // how you lose the game
+	dir = S; // stopping the game
+	x = width / 2;
+	y = height / 2;
+	foodX = rand() % width; // where the "food" goes, x coordinate
+	foodY = rand() % height; // where the "food" goes, y coordinate
+	points = 0;
+}
+
+
+void Input()
+{
+	if (_kbhit())
+	{
+		switch (_getch())
+		{
+		case 'a': // assigning a to move left
+			dir = L; // movement
+			break;
+		case 'd': // assigning d to move right
+			dir = R;// movement
+			break;
+		case 'w': // assigning w to move up
+			dir = U; // movement
+			break;
+		case 's': // assigning s to move down
+			dir = D; // movement
+			break;
+		case 'x': // X will end your game
+			giantLoser = true;
+			break;
+		}
+	}
+}
+
+void Logic()
+{
+	int prevX = endX[0];
+	int prevY = endY[0];
+	int prev2X, prev2Y;
+	endX[0] = x;
+	endY[0] = y;
+	for (int i = 1; i < nEnd; i++)
+	{
+		prev2X = endX[i];
+		prev2Y = endY[i];
+		endX[i] = prevX;
+		endY[i] = prevY;
+		prevX = prev2X;
+		prevY = prev2Y;
+	}
+	switch (dir) // Directions
+	{
+	case L: // Left
+		x--;
+		break;
+	case R: // Right
+		x++;
+		break;
+	case U: // Up
+		y--;
+		break;
+	case D: // Down
+		y++;
+		break;
+	default:
+		break;
+	}
+
+	if (x >= width) x = 0; else if (x < 0) x = width - 1;
+	if (y >= height) y = 0; else if (y < 0) y = height - 1;
+
+	for (int i = 0; i < nEnd; i++)
+		if (endX[i] == x && endY[i] == y)
+			giantLoser = true;
+
+	if (x == foodX && y == foodY)
+	{
+		points += 849.32; // Points earned for every dollar sign eaten. That's the average amount on a paycheck
+		foodX = rand() % width; // resetting the x coordinate for "food"
+		foodY = rand() % height; // resetting the y coordinate for "food"
+		nEnd++;
+	}
+}
+
+int main()
+{
+	Setup();
+	while (!giantLoser) // While you haven't lost yet
+	{
+		system("cls");
+		Draw();
+		Input();
+		Logic();
+		Sleep(10);
+
+		cout << "Let's hope this is the first time you've ever played a videogame..." << endl;
+	}
+	return 0;
+}
